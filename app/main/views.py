@@ -30,12 +30,6 @@ def server_shutdown():
     return 'Shutting down...'
 
 
-@main.route('/', methods=['GET', 'POST'])
+@main.route('/')
 def index():
     return render_template('index.html')
-
-
-@main.route('/user/<email>')
-def user(email):
-    user = User.query.filter_by(email=email).first_or_404()
-    return render_template('user.html', user=user)
