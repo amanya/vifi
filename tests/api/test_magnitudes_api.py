@@ -4,79 +4,13 @@ import re
 from base64 import b64encode
 from app import create_app, db
 from app.models import User, Role, Vineyard, Sensor, Magnitude, Metric
+from .test_base_api import BaseAPITestCase
 
 
-class MagnitudesAPITestCase(unittest.TestCase):
-    def setUp(self):
-        self.app = create_app('testing')
-        self.app_context = self.app.app_context()
-        self.app_context.push()
-        db.create_all()
-        Role.insert_roles()
-        self.client = self.app.test_client()
-
-        # add regular user
-        r = Role.query.filter_by(name='Writer').first()
-        u = User(email='john@example.com', password='cat', confirmed=True,
-                 role=r)
-        db.session.add(u)
-        db.session.commit()
-        self.writer_user = u
-
-        # add a vineyard for the regular user
-        v = Vineyard(name='foo', user_id=self.writer_user.id)
-        db.session.add(v)
-        db.session.commit()
-        self.vineyard = v
-
-        # add a sensor for the regular user
-        s = Sensor(description='bar', latitude=0, longitude=0, gateway='asd',
-                   power_perc=0, vineyard_id=self.vineyard.id, user_id=self.writer_user.id)
-        db.session.add(s)
-        db.session.commit()
-        self.sensor = s
-
-        # add a read only user
-        r = Role.query.filter_by(name='Reader').first()
-        u = User(email='reader@example.com', password='dog', confirmed=True,
-                 role=r)
-        db.session.add(u)
-        db.session.commit()
-        self.reader_user = u
-
-        # add an admin user
-        r = Role.query.filter_by(name='Administrator').first()
-        u = User(email='admin@example.com', password='pass', confirmed=True,
-                 role=r)
-        db.session.add(u)
-        db.session.commit()
-        self.admin_user = u
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-        self.app_context.pop()
-
-    def get_api_headers(self, email, password):
-        return {
-            'Authorization': 'Basic ' + b64encode(
-                (email + ':' + password).encode('utf-8')).decode('utf-8'),
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
-
-    def get_admin_headers(self):
-        return self.get_api_headers('admin@example.com', 'pass')
-
-    def get_reader_headers(self):
-        return self.get_api_headers('reader@example.com', 'dog')
-
-    def get_writer_headers(self):
-        return self.get_api_headers('john@example.com', 'cat')
-
+class MagnitudesAPITestCase(BaseAPITestCase):
     def test_404(self):
         response = self.client.get(
-            '/api/v1/magnitudes/1',
+            '/api/v1/magnitudes/100',
             headers=self.get_writer_headers())
         self.assertEqual(response.status_code, 404)
         json_response = json.loads(response.get_data(as_text=True))
@@ -89,9 +23,7 @@ class MagnitudesAPITestCase(unittest.TestCase):
 
     def test_bad_auth(self):
         # authenticate with bad password
-        response = self.client.get(
-            '/api/v1/magnitudes/',
-            headers=self.get_api_headers('john@example.com', 'dog'))
+        response = self.authenticate('john@example.com', 'dog')
         self.assertEqual(response.status_code, 401)
 
     def test_get_magnitudes(self):
@@ -109,8 +41,8 @@ class MagnitudesAPITestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
         json_response = json.loads(response.get_data(as_text=True))
-        self.assertEqual(json_response.get('count'), 2)
-        self.assertEqual(len(json_response.get('magnitudes')), 2)
+        self.assertEqual(json_response.get('count'), 3)
+        self.assertEqual(len(json_response.get('magnitudes')), 3)
 
     def test_get_magnitude(self):
         m = Magnitude(layer='Surface', type='Temperature', sensor_id=self.sensor.id,
@@ -190,16 +122,12 @@ class MagnitudesAPITestCase(unittest.TestCase):
         self.assertEqual(json_response['layer'], 'Depth 1')
 
     def test_magnitude_metrics(self):
-        m = Magnitude(layer='Surface', type='Temperature', sensor_id=self.sensor.id,
-                      user_id=self.writer_user.id)
-        db.session.add(m)
-        db.session.commit()
-        me = Metric(value=10, magnitude_id=m.id)
+        me = Metric(value=10, magnitude_id=self.magnitude.id)
         db.session.add(me)
         db.session.commit()
 
         response = self.client.get(
-            '/api/v1/magnitudes/%d/metrics/' % me.id,
+            '/api/v1/magnitudes/%d/metrics/' % self.magnitude.id,
             headers=self.get_writer_headers())
 
         self.assertEqual(response.status_code, 200)
