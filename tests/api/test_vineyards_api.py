@@ -39,18 +39,33 @@ class VineyardsAPITestCase(unittest.TestCase):
         db.session.commit()
         self.admin_user = u
 
+        self.tokens = {}
+
     def tearDown(self):
         db.session.remove()
         db.drop_all()
         self.app_context.pop()
 
+    def authenticate(self, email, password):
+        headers = {'Accept': 'application/json',
+                    'Content-Type': 'application/json'}
+        data = {'username': email, 'password': password}
+
+        return self.client.post(
+                '/auth/login',
+                headers=headers,
+                data=json.dumps(data))
+
     def get_api_headers(self, email, password):
-        return {
-            'Authorization': 'Basic ' + b64encode(
-                (email + ':' + password).encode('utf-8')).decode('utf-8'),
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
+        if not email in self.tokens:
+            response = self.authenticate(email, password)
+            json_response = json.loads(response.get_data(as_text=True))
+            self.tokens[email] = json_response['jwt']
+
+        headers = { 'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + self.tokens[email]}
+        return headers
 
     def get_admin_headers(self):
         return self.get_api_headers('admin@example.com', 'pass')
@@ -76,9 +91,7 @@ class VineyardsAPITestCase(unittest.TestCase):
 
     def test_bad_auth(self):
         # authenticate with bad password
-        response = self.client.get(
-            '/api/v1/vineyards/',
-            headers=self.get_api_headers('john@example.com', 'dog'))
+        response = self.authenticate('john@example.com', 'dog')
         self.assertEqual(response.status_code, 401)
 
     def test_get_vineyards(self):
