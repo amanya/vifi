@@ -60,6 +60,7 @@ class Magnitude(db.Model):
     def to_json(self):
         json_magnitude = {
             'id': self.id,
+            'sensor_id': self.sensor_id,
             'layer': self.layer,
             'type': self.type,
             'url': url_for('api.get_magnitude', id=self.id),
@@ -104,6 +105,7 @@ class Sensor(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_json(self):
+        magnitudes_json = [m.to_json() for m in self.magnitudes.all()]
         json_sensor = {
             'id': self.id,
             'description': self.description,
@@ -111,6 +113,7 @@ class Sensor(db.Model):
             'longitude': str(self.longitude),
             'gateway': str(self.gateway),
             'power_perc': str(self.power_perc),
+            'magnitudes': magnitudes_json,
             'url': url_for('api.get_sensor', id=self.id),
             'user_url': url_for('api.get_user', id=self.user_id),
             'vineyard_url': url_for('api.get_vineyard', id=self.vineyard_id),
@@ -163,6 +166,7 @@ class Vineyard(db.Model):
         json_vineyard = {
             'id': self.id,
             'name': self.name,
+            'sensors': [s.to_json() for s in self.sensors.all()],
             'url': url_for('api.get_vineyard', id=self.id),
             'user_url': url_for('api.get_user', id=self.user_id),
             'sensors_url': url_for('api.get_vineyard_sensors', id=self.id),
