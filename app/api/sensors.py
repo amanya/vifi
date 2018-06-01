@@ -75,3 +75,8 @@ def get_sensor_magnitudes(id):
         'next': next,
         'count': pagination.total
     })
+
+@api.route('/sensors/<int:id>/last-metrics/')
+def get_sensor_last_metrics(id):
+    sensor = Sensor.query.filter_by(id=id, user_id=g.current_user.id).first_or_404()
+    return jsonify(sensor.last_metrics())

@@ -14,7 +14,7 @@ class Config:
     MAIL_SUBJECT_PREFIX = '[Vi-Fi]'
     MAIL_SENDER = 'Vi-Fi Admin <vifi@example.com>'
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL')
-    ITEMS_PER_PAGE = 10
+    ITEMS_PER_PAGE = 100
     SSL_REDIRECT = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True

@@ -60,3 +60,16 @@ def setup(email='admin@example.com', count=100):
             return
 
 
+def generateFakeMetricsForMagnitude(magnitude_id, count=100):
+    fake = Faker()
+    i = 0
+    while i < count:
+        m = Metric(timestamp=fake.date_time_this_month(),
+                value=fake.pyfloat(left_digits=2, right_digits=3, positive=True),
+                magnitude_id=magnitude_id)
+        db.session.add(m)
+
+        db.session.commit()
+        i += 1
+
+

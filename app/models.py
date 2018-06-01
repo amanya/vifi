@@ -4,7 +4,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app, url_for
 from flask_login import UserMixin, AnonymousUserMixin
 from app.exceptions import ValidationError
-from sqlalchemy import Index
+from sqlalchemy import Index, desc
 from . import db
 
 
@@ -103,6 +103,17 @@ class Sensor(db.Model):
     vineyard_id = db.Column(db.Integer, db.ForeignKey('vineyards.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def last_metrics(self):
+        ret = []
+        for magnitude in self.magnitudes:
+            last_metric = magnitude.metrics.order_by(desc(Metric.timestamp)).limit(1).first()
+            ret.append({
+                'magnitude_id': magnitude.id,
+                'timestamp': last_metric.timestamp,
+                'value': last_metric.value
+            })
+        return ret
 
     def to_json(self):
         magnitudes_json = [m.to_json() for m in self.magnitudes.all()]
