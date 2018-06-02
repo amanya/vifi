@@ -13,6 +13,48 @@ class Permission:
     WRITE = 2
     ADMIN = 4 
 
+class Alert(db.Model):
+    __tablename__ = 'alerts'
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    acknowledged = db.Column(db.Boolean, nullable=False)
+    priority = db.Column(db.Enum('Info', 'Warning', 'Danger'))
+    origin = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow(), onupdate=datetime.utcnow())
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+
+    def to_json(self):
+        json_alert = {
+            'id': self.id,
+            'acknowledged': self.acknowledged,
+            'content': self.content,
+            'priority': self.priority,
+            'origin': self.origin,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at,
+            'user_id': self.user_id,
+        }
+        return json_alert
+
+    @staticmethod
+    def from_json(json_alert):
+        content = json_alert.get('content', None)
+        if content is None:
+            raise ValidationError('alert does not have a content')
+        user_id = json_alert.get('user_id', None)
+        if user_id is None:
+            raise ValidationError('alert does not have a user_id')
+        priority = json_alert.get('priority', None)
+        if priority is None:
+            raise ValidationError('alert does not have a priority')
+        origin = json_alert.get('origin', None)
+        return Alert(content=content, user_id=user_id, priority=priority, origin=origin,
+                acknowledged=False)
+
+    def __repr__(self):
+        return '<Alert (%r)>' % self.content
+
 
 class Metric(db.Model):
     __tablename__ = 'metrics'
