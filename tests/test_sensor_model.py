@@ -31,7 +31,7 @@ class SensorModelTestCase(unittest.TestCase):
         with self.app.test_request_context('/'):
             json_sensor = s.to_json()
         expected_keys = ['id', 'description', 'latitude', 'longitude', 'gateway', 'power_perc',
-                         'url', 'user_url', 'vineyard_url', 'magnitudes_url', 'created_at']
+                         'url', 'user_url', 'vineyard_url', 'magnitudes', 'magnitudes_url', 'created_at']
         self.assertEqual(sorted(json_sensor.keys()), sorted(expected_keys))
         self.assertEqual('/api/v1/sensors/' + str(s.id), json_sensor['url'])
         self.assertEqual('/api/v1/users/' + str(u.id), json_sensor['user_url'])

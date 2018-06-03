@@ -33,7 +33,7 @@ class MagnitudeModelTestCase(unittest.TestCase):
         db.session.commit()
         with self.app.test_request_context('/'):
             json_magnitude = m.to_json()
-        expected_keys = ['id', 'layer', 'type', 'url', 'user_url', 'sensor_url', 'metrics_url', 'created_at']
+        expected_keys = ['id', 'layer', 'type', 'url', 'user_url', 'sensor_id', 'sensor_url', 'metrics_url', 'created_at']
         self.assertEqual(sorted(json_magnitude.keys()), sorted(expected_keys))
         self.assertEqual('/api/v1/magnitudes/' + str(s.id), json_magnitude['url'])
         self.assertEqual('/api/v1/users/' + str(u.id), json_magnitude['user_url'])

@@ -26,7 +26,7 @@ class VineyardModelTestCase(unittest.TestCase):
         db.session.commit()
         with self.app.test_request_context('/'):
             json_vineyard = v.to_json()
-        expected_keys = ['id', 'name', 'url', 'user_url', 'sensors_url', 'created_at']
+        expected_keys = ['id', 'name', 'url', 'user_url', 'sensors', 'sensors_url', 'created_at']
         self.assertEqual(sorted(json_vineyard.keys()), sorted(expected_keys))
         self.assertEqual('/api/v1/vineyards/' + str(v.id), json_vineyard['url'])
         self.assertEqual('/api/v1/users/' + str(u.id), json_vineyard['user_url'])
