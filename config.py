@@ -45,7 +45,6 @@ class ProductionConfig(Config):
     @classmethod
     def init_app(cls, app):
         Config.init_app(app)
-        print(SQLALCHEMY_DATABASE_URI)
 
         # email errors to the administrators
         import logging
