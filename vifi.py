@@ -16,7 +16,6 @@ import click
 from flask_migrate import Migrate, upgrade
 from app import create_app, db
 from app.models import User, Role, Permission, Metric, Magnitude, Sensor, Vineyard
-from app import fake as fake_data
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 migrate = Migrate(app, db)
@@ -74,7 +73,8 @@ def deploy(fake):
     # create or update user roles
     Role.insert_roles()
 
-    if fake and os.environ.get('FLASK_ENV') == 'development':
+    if os.environ.get('FLASK_ENV') == 'development':
+        from app import fake as fake_data
         fake_data.setup('albertmp@eml.cc', 100)
         fake_data.setup('admin@example.com', 100)
 
