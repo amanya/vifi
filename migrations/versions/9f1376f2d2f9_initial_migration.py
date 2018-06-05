@@ -64,8 +64,8 @@ def upgrade():
     op.create_index(op.f('ix_sensors_user_id'), 'sensors', ['user_id'], unique=False)
     op.create_table('magnitudes',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('layer', sa.Enum('Surface', 'Depth 1', 'Depth 2'), nullable=False),
-    sa.Column('type', sa.Enum('Temperature', 'Humidity', 'Conductivity', 'pH', 'Light', 'Dew'), nullable=False),
+    sa.Column('layer', sa.Enum('Surface', 'Depth 1', 'Depth 2', name='sensor_layers'), nullable=False),
+    sa.Column('type', sa.Enum('Temperature', 'Humidity', 'Conductivity', 'pH', 'Light', 'Dew', name='sensor_types'), nullable=False),
     sa.Column('sensor_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),

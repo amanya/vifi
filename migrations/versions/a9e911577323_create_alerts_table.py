@@ -22,7 +22,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('content', sa.Text(), nullable=False),
     sa.Column('acknowledged', sa.Boolean(), nullable=False),
-    sa.Column('priority', sa.Enum('Info', 'Warning', 'Danger'), nullable=True),
+    sa.Column('priority', sa.Enum('Info', 'Warning', 'Danger', name='alert_priority'), nullable=True),
     sa.Column('origin', sa.Text(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
