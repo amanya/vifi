@@ -19,7 +19,7 @@ Vue.use(VueGoogleMaps, {
   }
 })
 
-axios.defaults.baseURL = 'http://localhost:5000'
+axios.defaults.baseURL = 'https://senseearth-dev.herokuapp.com'
 // axios.defaults.headers.common['Authorization'] = 'fasfdsa'
 axios.defaults.headers.get['Accepts'] = 'application/json'
 
