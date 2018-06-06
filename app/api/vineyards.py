@@ -38,7 +38,7 @@ def get_vineyard(id):
 @api.route('/vineyards/', methods=['POST'])
 @permission_required(Permission.WRITE)
 def new_vineyard():
-    vineyard = Vineyard.from_json(request.json)
+    vineyard = Vineyard.from_json({**request.json, 'user_id': g.current_user.id})
     db.session.add(vineyard)
     db.session.commit()
     return jsonify(vineyard.to_json()), 201, \

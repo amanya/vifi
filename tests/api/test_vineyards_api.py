@@ -84,7 +84,7 @@ class VineyardsAPITestCase(BaseAPITestCase):
         response = self.client.post(
             '/api/v1/vineyards/',
             headers=self.get_writer_headers(),
-            data=json.dumps({'name': 'foo', 'user_id': self.writer_user.id}))
+            data=json.dumps({'name': 'foo'}))
 
         self.assertEqual(response.status_code, 201)
         json_response = json.loads(response.get_data(as_text=True))
