@@ -3,13 +3,21 @@ from flask_sqlalchemy import SQLAlchemy
 from config import config
 from flask_jwt_simple import JWTManager
 
+import jinja2
+
 db = SQLAlchemy()
 
 
 def create_app(config_name):
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='../static/dist/static')
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
+
+    template_loader = jinja2.ChoiceLoader([
+        app.jinja_loader,
+        jinja2.FileSystemLoader('./static/dist'),
+        ])
+    app.jinja_loader = template_loader
 
     jwt = JWTManager(app)
 
