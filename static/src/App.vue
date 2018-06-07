@@ -55,12 +55,14 @@ export default {
     })
   },
   created() {
-    setInterval(
-      function() {
-        this.$store.dispatch('fetchAlerts')
-      }.bind(this),
-      10000
-    )
+    if (this.isAuthenticated) {
+      setInterval(
+        function() {
+          this.$store.dispatch('fetchAlerts')
+        }.bind(this),
+        10000
+      )
+    }
   }
 }
 </script>
