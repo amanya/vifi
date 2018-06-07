@@ -10,6 +10,8 @@ from .errors import unauthorized, forbidden
 def before_request():
     if request.endpoint == 'api.login':
         return
+    if request.method == 'OPTIONS':
+        return
     user = User.query.filter_by(email=get_jwt_identity()).first()
     if not user:
         return unauthorized('Invalid credentials')
