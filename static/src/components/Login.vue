@@ -23,6 +23,9 @@
             </span>
           </p>
         </div>
+        <div v-if="loginError" class="notification is-danger">
+          Invalid username or password
+        </div>
         <div class="field">
           <p class="control">
             <button class="button is-success is-large">
@@ -56,6 +59,9 @@ export default {
     }
   },
   computed: {
+    loginError() {
+      return this.$store.state.auth.error
+    },
     envelopeIcon() {
       return faEnvelope
     },

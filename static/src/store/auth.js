@@ -3,12 +3,18 @@ import router from '../router'
 
 const state = {
   idToken: null,
-  user: null
+  user: null,
+  error: false
 }
 
 const mutations = {
   authUser(state, userData) {
     state.idToken = userData.token
+    state.error = false
+  },
+  loginError(state) {
+    state.idToken = null
+    state.error = true
   },
   storeUser(state, user) {
     state.user = user
@@ -33,7 +39,10 @@ const actions = {
       })
       .then(() => dispatch('loadVineyards'))
       .then(() => router.replace('/alerts'))
-      .catch(error => console.log(error))
+      .catch(error => {
+        console.log(error)
+        commit('loginError')
+      })
   },
   tryAutoLogin({ commit, dispatch }) {
     const token = localStorage.getItem('token')
