@@ -1,28 +1,30 @@
 <template>
   <div>
-    <GmapMap
+    <gmap-map
       v-if="google && vineyard"
       :center="center"
       :zoom="17"
       map-type-id="satellite"
       style="width: 100%; height: 400px"
       >
-        <gmap-info-window :options="infoOptions" :position="infoWindowPos" :opened="infoWinOpen" @closeclick="infoWinOpen=false">
-          <sensor-modal
-            v-if="vineyard.sensors"
-            v-for="sensor in vineyard.sensors"
-            :key="sensor.id"
-            :sensor="sensor"/>
+        <gmap-info-window
+          v-for="(m, index) in markers"
+          :key="`sensor-${index}`"
+          :options="infoOptions"
+          :position="infoWindowPos"
+          :opened="infoWinOpen[index]"
+          @closeclick="toggleInfoWindow(m, index)">
+          <sensor-modal :sensor="m.sensor"/>
         </gmap-info-window>
-      <GmapMarker
-        :key="index"
-        v-for="(m, index) in markers"
-        :position="m.position"
-        :clickable="true"
-        :draggable="false"
-        @click="toggleInfoWindow(m, index)"
-        />
-    </GmapMap>
+        <gmap-marker
+          v-for="(m, index) in markers"
+          :key="`marker-${index}`"
+          :position="m.position"
+          :clickable="true"
+          :draggable="false"
+          @click="toggleInfoWindow(m, index)"
+          />
+    </gmap-map>
   </div>
 </template>
 
@@ -41,8 +43,9 @@ export default {
       zoom: 17,
       infoContent: '',
       infoWindowPos: null,
-      infoWinOpen: false,
+      infoWinOpen: {},
       currentMidx: null,
+      currentSensor: null,
       infoOptions: {
         pixelOffset: {
           width: 0,
@@ -50,6 +53,9 @@ export default {
         }
       }
     }
+  },
+  created() {
+    console.log(this.vineyard.sensors)
   },
   computed: {
     google: gmapApi,
@@ -78,22 +84,33 @@ export default {
               this.vineyard.sensors[i].latitude,
               this.vineyard.sensors[i].longitude
             ),
-            infoText: this.vineyard.sensors[i].description
+            infoText: this.vineyard.sensors[i].description,
+            sensor: this.vineyard.sensors[i]
           })
         }
       }
+      let infoWinOpen = {}
+      markers.forEach((m, idx) => {
+        infoWinOpen[idx] = false
+      })
+      this.infoWinOpen = Object.assign({}, this.infoWinOpen, infoWinOpen)
       return markers
     },
     toggleInfoWindow: function(marker, idx) {
       this.infoWindowPos = marker.position
       this.infoContent = marker.infoText
+      this.currentSensor = marker.sensor
 
-      if (this.currentMidx === idx) {
-        this.infoWinOpen = !this.infoWinOpen
+      if (this.currentMidx === `sensor-${idx}`) {
+        this.infoWinOpen[idx] = !this.infoWinOpen[idx]
       } else {
-        this.infoWinOpen = true
-        this.currentMidx = idx
+        this.vineyard.sensors.forEach((m, idx) => {
+          this.infoWinOpen[idx] = false
+        })
+        this.infoWinOpen[idx] = true
+        this.currentMidx = `sensor-${idx}`
       }
+      console.log(this.infoWinOpen)
     }
   }
 }

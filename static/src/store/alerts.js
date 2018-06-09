@@ -1,4 +1,5 @@
 import globalAxios from 'axios'
+import router from '../router'
 
 export default {
   state: {
@@ -59,6 +60,8 @@ export default {
           console.log(error)
           commit('alertsFetchError')
           commit('clearAuthData')
+          localStorage.removeItem('token')
+          router.replace('/')
         })
     }
   }

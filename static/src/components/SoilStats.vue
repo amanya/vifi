@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="vineyard">
     <header>
       <h1 class="title">{{ vineyard.name }}'s soil stats</h1>
     </header>
