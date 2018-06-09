@@ -12,15 +12,14 @@ import * as VueGoogleMaps from 'vue2-google-maps'
 
 Vue.use(VueGoogleMaps, {
   load: {
-    key: 'AIzaSyBmAy1PQoMUWZXmOV-AmFrumEwYLl32o4I',
+    key: process.env.GMAPS_API_TOKEN,
     libraries: 'places,drawing,visualization',
     autoBindAllEvents: true,
     installComponents: true
   }
 })
 
-// axios.defaults.baseURL = ''
-// axios.defaults.headers.common['Authorization'] = 'fasfdsa'
+axios.defaults.baseURL = process.env.BASE_URL
 axios.defaults.headers.get['Accepts'] = 'application/json'
 
 const reqInterceptor = axios.interceptors.request.use(config => {
