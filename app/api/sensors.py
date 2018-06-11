@@ -50,6 +50,12 @@ def new_sensor():
 def edit_sensor(id):
     sensor = Sensor.query.filter_by(id=id, user_id=g.current_user.id).first_or_404()
     sensor.description = request.json.get('description', sensor.description)
+    sensor.latitude = request.json.get('latitude', sensor.latitude)
+    sensor.longitude = request.json.get('longitude', sensor.longitude)
+    sensor.gateway = request.json.get('gateway', sensor.gateway)
+    sensor.vineyard_id = request.json.get('vineyard_id', sensor.vineyard_id)
+    sensor.user_id = request.json.get('user_id', sensor.user_id)
+    sensor.power_perc = request.json.get('power_perc', sensor.power_perc)
     db.session.add(sensor)
     db.session.commit()
     return jsonify(sensor.to_json())
