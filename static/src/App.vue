@@ -3,9 +3,6 @@
     <navbar />
     <div class="columns">
       <aside v-if="isAuthenticated" class="column menu is-2 is-sidebar-menu is-hidden-mobile aside">
-        <p class="menu-label">
-          General
-        </p>
         <ul class="menu-list">
           <li>
             <router-link :to='{ name: "alerts" }' active-class='is-active'>
@@ -13,15 +10,46 @@
               <span v-if="unAckAlerts" class="badge is-badge-danger is-badge-medium" :data-badge="numUnAckAlerts"></span>
             </router-link>
           </li>
-        </ul>
-        <p class="menu-label">
-          Vineyards
-        </p>
-        <ul class="menu-list">
-          <li v-for="vineyard in vineyards" :key="vineyard.id">
-            <router-link :to='{ name: "vineyard", params: { id: vineyard.id } }' active-class='is-active'>
-              {{ vineyard.name }}
+          <li>
+            <router-link :to='{ name: "health-stats" }' active-class='is-active'>
+              Health status
             </router-link>
+          </li>
+          <li>
+            <router-link :to='{ name: "soil-stats" }'>
+              Soil stats
+            </router-link>
+            <ul>
+              <li v-for="vineyard in vineyards" :key="vineyard.id">
+                <router-link :to='{ name: "soil-stats", params: { id: vineyard.id } }' active-class='is-active'>
+                  {{ vineyard.name }}
+                </router-link>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <router-link :to='{ name: "microclimate" }'>
+              Microclimate
+            </router-link>
+            <ul>
+              <li v-for="vineyard in vineyards" :key="vineyard.id">
+                <router-link :to='{ name: "microclimate", params: { id: vineyard.id } }' active-class='is-active'>
+                  {{ vineyard.name }}
+                </router-link>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <router-link :to='{ name: "weather" }'>
+              Weather
+            </router-link>
+            <ul>
+              <li v-for="vineyard in vineyards" :key="vineyard.id">
+                <router-link :to='{ name: "weather", params: { id: vineyard.id } }' active-class='is-active'>
+                  {{ vineyard.name }}
+                </router-link>
+              </li>
+            </ul>
           </li>
         </ul>
       </aside>
