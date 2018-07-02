@@ -1,5 +1,5 @@
 from flask import jsonify, g, request, current_app, url_for
-from flask_jwt_simple import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from . import api
 from .errors import forbidden
 from ..models import User, Vineyard

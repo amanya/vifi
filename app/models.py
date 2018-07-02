@@ -1,6 +1,6 @@
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous import JSONWebSignatureSerializer, TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app, url_for
 from flask_login import UserMixin, AnonymousUserMixin
 from app.exceptions import ValidationError
@@ -289,6 +289,20 @@ class Role(db.Model):
         return '<Role %r>' % self.name
 
 
+class ApiToken(db.Model):
+    __tablename__ = 'api_tokens'
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    enabled = db.Column(db.Boolean, default=True)
+
+    @property
+    def token(self):
+        s = JSONWebSignatureSerializer(current_app.config['SECRET_KEY'])
+        return s.dumps({'id': self.user_id, 'timestamp': str(self.timestamp)}).decode('utf-8')
+
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -393,6 +407,13 @@ class User(UserMixin, db.Model):
         s = Serializer(current_app.config['SECRET_KEY'],
                        expires_in=expiration)
         return s.dumps({'id': self.id}).decode('utf-8')
+
+    def generate_api_token(self, description):
+        timestamp = datetime.utcnow()
+        api_token = ApiToken(user_id=self.id, timestamp=timestamp, description=description)
+        db.session.add(api_token)
+        db.session.commit()
+        return api_token.token
 
     @staticmethod
     def verify_auth_token(token):
