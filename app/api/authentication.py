@@ -13,9 +13,13 @@ def before_request():
         return
     if request.method == 'OPTIONS':
         return
-    verify_jwt_in_request()
-    identity = get_jwt_identity()
-    user = User.query.filter_by(email=identity).first()
+    token = request.args.get('token', None, type=str)
+    if token:
+        user = User.verify_api_token(token)
+    else:
+        verify_jwt_in_request()
+        identity = get_jwt_identity()
+        user = User.query.filter_by(email=identity).first()
     if not user:
         return unauthorized('Invalid credentials')
     g.current_user = user
