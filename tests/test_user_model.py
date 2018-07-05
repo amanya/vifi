@@ -138,6 +138,6 @@ class UserModelTestCase(unittest.TestCase):
         db.session.commit()
         with self.app.test_request_context('/'):
             json_user = u.to_json()
-        expected_keys = ['id', 'email', 'url', 'vineyards_url']
+        expected_keys = ['id', 'email', 'admin', 'url', 'vineyards_url']
         self.assertEqual(sorted(json_user.keys()), sorted(expected_keys))
         self.assertEqual('/api/v1/users/' + str(u.id), json_user['url'])

@@ -15,6 +15,9 @@
             {{ user.email }}
           </a>
           <div class="navbar-dropdown is-boxed">
+            <router-link v-if="user.admin" :to='{ name: "api-tokens" }' class="navbar-item">
+              API Tokens
+            </router-link>
             <a class="navbar-item" href="#" @click="onLogout">Logout</a>
           </div>
         </div>

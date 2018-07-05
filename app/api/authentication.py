@@ -30,18 +30,6 @@ def get_token():
         expiration=3600), 'expiration': 3600})
 
 
-@api.route('/api-tokens/', methods=['POST'])
-def get_api_token():
-    if not request.is_json:
-        return unauthorized('Invalid data)')
-    if not g.current_user.is_administrator:
-        return unauthorized('Invalid credentials')
-    params = request.get_json()
-    description = params.get('description', '')
-    token = g.current_user.generate_api_token(description)
-    return jsonify({'token': token})
- 
-
 @api.route('/login', methods=['POST'])
 def login():
     if not request.is_json:

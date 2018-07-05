@@ -10,6 +10,7 @@ import Weather from '@/components/Weather'
 import Vineyard from '@/components/Vineyard'
 import Logout from '@/components/Logout'
 import VineyardDefault from '@/components/VineyardDefault'
+import ApiTokens from '@/components/ApiTokens'
 
 import store from '../store'
 
@@ -37,6 +38,12 @@ export default new Router({
           next()
         }
       }
+    },
+    {
+      path: '/api-tokens',
+      name: 'api-tokens',
+      component: ApiTokens,
+      beforeEnter: checkAuth
     },
     {
       path: '/alerts',

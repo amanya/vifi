@@ -302,6 +302,15 @@ class ApiToken(db.Model):
         s = JSONWebSignatureSerializer(current_app.config['SECRET_KEY'])
         return s.dumps({'id': self.user_id, 'timestamp': str(self.timestamp)}).decode('utf-8')
 
+    def to_json(self):
+        json_api_token = {
+            'id': self.id,
+            'description': self.description,
+            'token': self.token,
+            'timestamp': self.timestamp,
+            'url': url_for('api.get_api_token', id=self.id),
+        }
+        return json_api_token
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -398,6 +407,7 @@ class User(UserMixin, db.Model):
         json_user = {
             'id': self.id,
             'email': self.email,
+            'admin': self.is_administrator(),
             'url': url_for('api.get_user', id=self.id),
             'vineyards_url': url_for('api.get_user_vineyards', id=self.id),
         }
@@ -413,7 +423,7 @@ class User(UserMixin, db.Model):
         api_token = ApiToken(user_id=self.id, timestamp=timestamp, description=description)
         db.session.add(api_token)
         db.session.commit()
-        return api_token.token
+        return api_token
 
     @staticmethod
     def verify_auth_token(token):
