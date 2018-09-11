@@ -121,6 +121,46 @@ class MagnitudesAPITestCase(BaseAPITestCase):
         json_response = json.loads(response.get_data(as_text=True))
         self.assertEqual(json_response['layer'], 'Depth 1')
 
+    def test_delete_magnitude(self):
+        m = Magnitude(layer='Surface', type='Temperature', sensor_id=self.sensor.id,
+                      user_id=self.writer_user.id)
+        db.session.add(m)
+        db.session.commit()
+
+        response = self.client.delete(
+            '/api/v1/magnitudes/%d' % m.id,
+            headers=self.get_writer_headers())
+
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(
+            '/api/v1/magnitudes/%d' % m.id,
+            headers=self.get_writer_headers())
+        self.assertEqual(response.status_code, 404)
+
+    def test_cant_delete_magnitude(self):
+        r = Role.query.filter_by(name='Writer').first()
+        u = User(email='jack@example.com', password='cat', confirmed=True,
+                 role=r)
+        db.session.add(u)
+        db.session.commit()
+
+        m = Magnitude(layer='Surface', type='Temperature', sensor_id=self.sensor.id,
+                      user_id=u.id)
+        db.session.add(m)
+        db.session.commit()
+
+        response = self.client.delete(
+            '/api/v1/magnitudes/%d' % m.id,
+            headers=self.get_writer_headers())
+
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get(
+            '/api/v1/magnitudes/%d' % m.id,
+            headers=self.get_api_headers('jack@example.com', 'cat'))
+        self.assertEqual(response.status_code, 200)
+
     def test_magnitude_metrics(self):
         me = Metric(value=10, magnitude_id=self.magnitude.id)
         db.session.add(me)
