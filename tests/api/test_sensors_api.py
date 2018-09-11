@@ -126,6 +126,46 @@ class SensorsAPITestCase(BaseAPITestCase):
         json_response = json.loads(response.get_data(as_text=True))
         self.assertEqual(json_response['description'], 'bar')
 
+    def test_delete_sensor(self):
+        s = Sensor(description='foo', latitude=0, longitude=0, gateway='asd',
+                   power_perc=0, vineyard_id=self.vineyard.id, user_id=self.writer_user.id)
+        db.session.add(s)
+        db.session.commit()
+
+        response = self.client.delete(
+            '/api/v1/sensors/%d' % s.id,
+            headers=self.get_writer_headers())
+
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(
+            '/api/v1/sensors/%d' % s.id,
+            headers=self.get_writer_headers())
+        self.assertEqual(response.status_code, 404)
+
+    def test_cant_delete_sensor(self):
+        r = Role.query.filter_by(name='Writer').first()
+        u = User(email='jack@example.com', password='cat', confirmed=True,
+                 role=r)
+        db.session.add(u)
+        db.session.commit()
+
+        s = Sensor(description='foo', latitude=0, longitude=0, gateway='asd',
+                   power_perc=0, vineyard_id=self.vineyard.id, user_id=u.id)
+        db.session.add(s)
+        db.session.commit()
+
+        response = self.client.delete(
+            '/api/v1/sensors/%d' % s.id,
+            headers=self.get_writer_headers())
+
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get(
+            '/api/v1/sensors/%d' % s.id,
+            headers=self.get_api_headers('jack@example.com', 'cat'))
+        self.assertEqual(response.status_code, 200)
+
     def test_sensor_magnitudes(self):
         s = Sensor(description='foo', latitude=0, longitude=0, gateway='asd',
                    power_perc=0, vineyard_id=self.vineyard.id, user_id=self.writer_user.id)

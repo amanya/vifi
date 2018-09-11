@@ -60,6 +60,15 @@ def edit_sensor(id):
     db.session.commit()
     return jsonify(sensor.to_json())
 
+@api.route('/sensors/<int:id>', methods=['DELETE'])
+@permission_required(Permission.WRITE)
+def delete_sensor(id):
+    sensor = Sensor.query.get_or_404(id)
+    if not (g.current_user.is_administrator() or g.current_user.id == sensor.user_id):
+        return forbidden('Insufficient permissions')
+    Sensor.query.filter_by(id=id).delete()
+    db.session.commit()
+    return jsonify(sensor.to_json())
 
 @api.route('/sensors/<int:id>/magnitudes/')
 def get_sensor_magnitudes(id):

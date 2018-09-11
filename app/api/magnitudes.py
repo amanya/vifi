@@ -56,6 +56,16 @@ def edit_magnitude(id):
     db.session.commit()
     return jsonify(magnitude.to_json())
 
+@api.route('/magnitudes/<int:id>', methods=['DELETE'])
+@permission_required(Permission.WRITE)
+def delete_magnitude(id):
+    magnitude = Magnitude.query.get_or_404(id)
+    if not (g.current_user.is_administrator() or g.current_user.id == magnitude.user_id):
+        return forbidden('Insufficient permissions')
+    Magnitude.query.filter_by(id=id).delete()
+    db.session.commit()
+    return jsonify(magnitude.to_json())
+
 
 @api.route('/magnitudes/<int:id>/metrics/')
 def get_magnitude_metrics(id):

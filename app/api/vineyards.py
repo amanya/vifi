@@ -55,6 +55,16 @@ def edit_vineyard(id):
     return jsonify(vineyard.to_json())
 
 
+@api.route('/vineyards/<int:id>', methods=['DELETE'])
+@permission_required(Permission.WRITE)
+def delete_vineyard(id):
+    vineyard = Vineyard.query.get_or_404(id)
+    if not (g.current_user.is_administrator() or g.current_user.id == vineyard.user_id):
+        return forbidden('Insufficient permissions')
+    Vineyard.query.filter_by(id=id).delete()
+    db.session.commit()
+    return jsonify(vineyard.to_json())
+
 @api.route('/vineyards/<int:id>/sensors/')
 def get_vineyard_sensors(id):
     vineyard = Vineyard.query.filter_by(id=id, user_id=g.current_user.id).first_or_404()
